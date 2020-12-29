@@ -1,5 +1,5 @@
 # spectral_sight
-utility for backing up wow interfaces
+utility for backing up wow interfaces. intended to be used on win10 systems for now.
 
 # todo
 - prompt user for target directory
