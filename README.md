@@ -9,3 +9,4 @@ utility for backing up wow interfaces
 - identify backup location
 - store payload
 - add metadata about backup, eg. date, time
+- integrate with a system dialog window for better user friendliness

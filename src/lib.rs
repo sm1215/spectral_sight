@@ -1,21 +1,16 @@
 use std::path::{Path};
+use std::{fs, io};
 
+pub fn read_contents(target_path: String) -> io::Result<()> {
+    println!("read_contents running...");
+    let default_path = String::from("./");
+    let wow_path = Path::new(&target_path);
 
-pub struct WowPath {
-    path: Path,
-}
+    let mut entries = fs::read_dir(wow_path)?
+        .map(|res| res.map(|e| e.path()))
+        .collect::<Result<Vec<_>, io::Error>>()?;
 
-impl WowPath {
-    pub fn new() -> Self {
-        let new_path = Path::new("./path_test");
-        
-        Self {
-            path: new_path,
-        }
-    }
-}
+    println!("entries {:#?}", entries);
 
-fn set_wow_path() {
-    println!("hit");
-    let wowPath = WowPath::new();
+    Ok(())
 }
