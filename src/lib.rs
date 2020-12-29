@@ -7,10 +7,10 @@ pub struct WowPath {
 
 impl WowPath {
     pub fn new() -> Self {
-        let path = Path::new("./path_test");
+        let new_path = Path::new("./path_test");
         
         Self {
-            path,
+            path: new_path,
         }
     }
 }
