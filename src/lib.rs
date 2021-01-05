@@ -1,8 +1,9 @@
 use std::path::{PathBuf};
 use std::{fs, io};
 
-pub fn create_base_backup_folder(backup_path: &str) -> io::Result<()> {
-    fs::create_dir(backup_path)?;
+pub fn create_nested_directory(path: &PathBuf) -> io::Result<()> {
+    println!("creating directory {:#?}", path);
+    fs::create_dir_all(path)?;
     Ok(())
 }
 
@@ -12,7 +13,7 @@ pub fn copy_file(source_path: &PathBuf, destination_path: &PathBuf) -> io::Resul
     Ok(())
 }
 
-pub fn set_write_perms(path: &str) {
+pub fn set_write_perms(path: &PathBuf) {
     let mut perms = fs::metadata(&path)
         .expect("error getting permissions")
         .permissions();
@@ -22,24 +23,27 @@ pub fn set_write_perms(path: &str) {
 }
 
 pub fn copy_directory_contents(source: &PathBuf, destination: &PathBuf) -> io::Result<()> {
-
-    // destination
-    // ./tests/source_test/interface_backups/include
-
+    println!("\nentering source {:#?}", source);
+    println!("destination exists? {:#?}, path {:#?}", destination.exists(), destination);
     if !destination.exists() {
         fs::create_dir_all(&destination)?;
     }
     for entry in fs::read_dir(source)? {
         let entry = entry?;
         let path = entry.path();
-        // let entry_meta = fs::metadata(&path);
 
-        println!("reading entry at {:#?}", path);
-        
-        // let mut nested_dirs = vec![];
         if path.is_dir() {
-            // copy_directory_contents
-            // nested_dirs.push(&path)
+            // need to pull tail from path and append to destination
+            let nested_path = match path.iter().last() {
+                Some(nested_path) => nested_path,
+                None => {
+                    println!("no nested_path");
+                    break;
+                }
+            };
+            let mut destination = destination.clone();
+            destination.push(&nested_path);
+            copy_directory_contents(&path, &destination)?;
         } else {
             let mut destination = destination.clone();
             let filename = match path.file_name() {
@@ -49,15 +53,9 @@ pub fn copy_directory_contents(source: &PathBuf, destination: &PathBuf) -> io::R
                     break;
                 }
             };
-            println!("filename {:#?}", filename);
             destination.push(&filename);
-
-
-
             copy_file(&path, &destination)?;
         }
-
-
     }
     
     Ok(())

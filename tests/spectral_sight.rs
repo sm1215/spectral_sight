@@ -16,21 +16,21 @@ impl TestConfig {
             disable_cleanup: true
         }
     }
-    pub fn get_backup_path() -> String {
+    pub fn get_backup_path() -> PathBuf {
         let cfg = Self::new();
-        [cfg.base_path, cfg.backup_location].join("/")
+        [cfg.base_path, cfg.backup_location].iter().collect::<PathBuf>()
     }
 }
 
 // deletes entire backup directory, intended only for tearing down tests
-fn destroy_base_backup_folder(backup_path: &str) -> io::Result<()> {
+fn destroy_base_backup_folder(backup_path: &PathBuf) -> io::Result<()> {
     fs::remove_dir_all(backup_path)?;
     Ok(())
 }
 
 fn setup() {
     let backup_path = &TestConfig::get_backup_path();
-    let _create_backup_result = create_base_backup_folder(backup_path);
+    let _create_backup_result = create_nested_directory(backup_path);
 
     // make sure backup_directory can be written to
     set_write_perms(backup_path);
@@ -68,7 +68,7 @@ where T: FnOnce() -> () + panic::UnwindSafe
 #[test]
 fn _creates_backup_folder() {
     let backup_path = &TestConfig::get_backup_path();
-    let _backup_result = create_base_backup_folder(backup_path);
+    let _backup_result = create_nested_directory(&backup_path);
     assert_eq!(Path::new(&backup_path).exists(), true);
 }
 
@@ -110,10 +110,21 @@ fn copies_nested_files() {
     let mut backed_up_file_1 = destination.clone();
     backed_up_file_1.push("payload.txt");
 
-    println!("backed_up_file_1 {:#?}", backed_up_file_1);
-    
     let mut backed_up_file_2 = destination.clone();
     backed_up_file_2.push("payload_2.txt");
+
+    let mut backed_up_file_3: PathBuf = [
+        destination.clone(), 
+        PathBuf::from("nested_folder"), 
+        PathBuf::from("nested_file.txt")
+    ].iter().collect();
+
+    let mut backed_up_file_4: PathBuf = [
+        destination.clone(), 
+        PathBuf::from("nested_folder"), 
+        PathBuf::from("double_nested_folder"),
+        PathBuf::from("double_nested_file_1.txt"),
+    ].iter().collect();
 
     // let backed_up_file_3 = [destination.clone(), String::from("nested_folder"), String::from("nested_file.txt")].join("/");
 
@@ -121,6 +132,7 @@ fn copies_nested_files() {
         let _copy_result = copy_directory_contents(&source, &destination);
         assert_eq!(backed_up_file_1.exists(), true);
         assert_eq!(backed_up_file_2.exists(), true);
-        // assert_eq!(backed_up_file_3.exists(), true);
+        assert_eq!(backed_up_file_3.exists(), true);
+        assert_eq!(backed_up_file_4.exists(), true);
     });
 }
