@@ -1,10 +1,11 @@
 use spectral_sight::*;
-use std::path::{Path};
+use std::path::{Path, PathBuf};
 use std::{fs, io, panic};
 
 pub struct TestConfig {
     base_path: String,
     backup_location: String,
+    disable_cleanup: bool,
 }
 
 impl TestConfig {
@@ -12,6 +13,7 @@ impl TestConfig {
         Self {
             base_path: String::from("./tests/source_test"),
             backup_location: String::from("interface_backups"),
+            disable_cleanup: true
         }
     }
     pub fn get_backup_path() -> String {
@@ -38,6 +40,11 @@ fn setup() {
 }
 
 fn teardown() {
+    let cfg = TestConfig::new();
+    if cfg.disable_cleanup {
+        println!("test cleanup disabled, directories will persist...");
+        return
+    }
     let backup_path = &TestConfig::get_backup_path();
     let _destroy_backup_result = destroy_base_backup_folder(&TestConfig::get_backup_path());
     
@@ -80,12 +87,35 @@ fn copies_a_file() {
     let target_dir = String::from("include");
     let target_file = String::from("payload.txt");
 
-    let source = [base_path.clone(), target_dir.clone(), target_file.clone()].join("/");
-    let destination = [base_path.clone(), backup_location.clone(), target_file.clone()].join("/");
+    let source: PathBuf = [base_path.clone(), target_dir.clone(), target_file.clone()].iter().collect();
+    let destination: PathBuf = [base_path.clone(), backup_location.clone(), target_file.clone()].iter().collect();
 
     run_test(|| {
-        let _copy_result = copy_folder(&source, &destination);
+        let _copy_result = copy_file(&source, &destination);
         let backed_up_file = destination.clone();
         assert_eq!(Path::new(&backed_up_file).exists(), true);
     });
 }
+
+// #[test]
+// fn copies_nested_files() {
+//     let cfg = TestConfig::new();
+//     let base_path = cfg.base_path;
+//     let backup_location = cfg.backup_location;
+//     let target_dir = String::from("include");
+
+//     let source: PathBuf = [base_path.clone(), target_dir.clone()].iter().collect();//.join("/");
+//     let destination: PathBuf = [base_path.clone(), backup_location.clone(), target_dir.clone()].iter().collect();//.join("/");
+//     let backed_up_file_1 = destination.clone().push("payload"); //[destination.clone(), String::from("payload.txt")].join("/");
+//     let backed_up_file_2 = destination.clone().push("payload_2.txt");//[destination.clone(), String::from("payload_2.txt")].join("/");
+//     // let backed_up_file_3 = [destination.clone(), String::from("nested_folder"), String::from("nested_file.txt")].join("/");
+
+//     // let path: PathBuf = [r"C:\", "windows", "system32.dll"].iter().collect();
+
+//     run_test(|| {
+//         let _copy_result = copy_directory_contents(&source, &destination);
+//         // assert_eq!(Path::from(&backed_up_file_1).exists(), true);
+//         // assert_eq!(Path::new(&backed_up_file_2).exists(), true);
+//         // assert_eq!(Path::new(&backed_up_file_3).exists(), true);
+//     });
+// }

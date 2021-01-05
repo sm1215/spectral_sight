@@ -1,4 +1,4 @@
-// use std::path::{Path};
+use std::path::{PathBuf};
 use std::{fs, io};
 
 pub fn create_base_backup_folder(backup_path: &str) -> io::Result<()> {
@@ -6,7 +6,8 @@ pub fn create_base_backup_folder(backup_path: &str) -> io::Result<()> {
     Ok(())
 }
 
-pub fn copy_folder(source_path: &str, destination_path: &str) -> io::Result<()> {
+pub fn copy_file(source_path: &PathBuf, destination_path: &PathBuf) -> io::Result<()> {
+    println!("copying {:?} to {:?}", source_path, destination_path);
     fs::copy(source_path, destination_path)?;
     Ok(())
 }
@@ -19,3 +20,34 @@ pub fn set_write_perms(path: &str) {
     fs::set_permissions(&path, perms.clone())
         .expect("error setting permissions");
 }
+
+// pub fn copy_directory_contents(source: &str, destination: &str) -> io::Result<()> {
+
+//     // destination
+//     // ./tests/source_test/interface_backups/include
+//     for entry in fs::read_dir(source)? {
+//         let entry = entry?;
+//         let path = entry.path();
+//         let entry_meta = fs::metadata(&path);
+        
+//         println!("entry {:#?}", entry);
+//         println!("path {:#?}", path);
+//         println!("meta {:#?}", entry_meta);
+        
+//         // let mut nested_dirs = vec![];
+//         if path.is_dir() {
+//             // copy_directory_contents
+//             // nested_dirs.push(&path)
+//         } else {
+//             // let path: PathBuf = [r"C:\", "windows", "system32.dll"].iter().collect();
+
+//             copy_file(&path, &destination)?;
+//             fs::copy(&path, &destination)?;
+
+//         }
+
+
+//     }
+    
+//     Ok(())
+// }
