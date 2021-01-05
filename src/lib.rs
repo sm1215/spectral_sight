@@ -7,9 +7,14 @@ pub fn create_nested_directory(path: &PathBuf) -> io::Result<()> {
     Ok(())
 }
 
-pub fn copy_file(source_path: &PathBuf, destination_path: &PathBuf) -> io::Result<()> {
-    println!("copying {:?} to {:?}", source_path, destination_path);
-    fs::copy(source_path, destination_path)?;
+pub fn copy_file(source: &PathBuf, destination: &PathBuf) -> io::Result<()> {
+    println!("copying {:?} to {:?}", source, destination);
+    println!("destination exists? {:#?}, path {:#?}", destination.exists(), destination);
+    if !destination.exists() {
+        println!("creating destination...");
+        fs::create_dir_all(&destination)?;
+    }
+    fs::copy(source, destination)?;
     Ok(())
 }
 
@@ -24,10 +29,7 @@ pub fn set_write_perms(path: &PathBuf) {
 
 pub fn copy_directory_contents(source: &PathBuf, destination: &PathBuf) -> io::Result<()> {
     println!("\nentering source {:#?}", source);
-    println!("destination exists? {:#?}, path {:#?}", destination.exists(), destination);
-    if !destination.exists() {
-        fs::create_dir_all(&destination)?;
-    }
+
     for entry in fs::read_dir(source)? {
         let entry = entry?;
         let path = entry.path();
@@ -59,4 +61,9 @@ pub fn copy_directory_contents(source: &PathBuf, destination: &PathBuf) -> io::R
     }
     
     Ok(())
+}
+
+// TODO: hookup user input so they can provide their own source
+pub fn main() {
+    
 }

@@ -13,7 +13,7 @@ impl TestConfig {
         Self {
             base_path: String::from("./tests/source_test"),
             backup_location: String::from("interface_backups"),
-            disable_cleanup: true
+            disable_cleanup: false
         }
     }
     pub fn get_backup_path() -> PathBuf {
@@ -88,12 +88,18 @@ fn copies_a_file() {
     let target_file = String::from("payload.txt");
 
     let source: PathBuf = [base_path.clone(), target_dir.clone(), target_file.clone()].iter().collect();
-    let destination: PathBuf = [base_path.clone(), backup_location.clone(), target_file.clone()].iter().collect();
+    let destination: PathBuf = [
+        base_path.clone(), 
+        backup_location.clone(), 
+        target_dir.clone(),
+        target_file.clone()
+    ].iter().collect();
 
     run_test(|| {
         let _copy_result = copy_file(&source, &destination);
         let backed_up_file = destination.clone();
-        assert_eq!(Path::new(&backed_up_file).exists(), true);
+        println!("backed_up_file exists {:#?}, path {:#?}", backed_up_file.exists(), backed_up_file);
+        assert_eq!(backed_up_file.exists(), true);
     });
 }
 
@@ -107,26 +113,28 @@ fn copies_nested_files() {
     let source: PathBuf = [base_path.clone(), target_dir.clone()].iter().collect();
     let destination: PathBuf = [base_path.clone(), backup_location.clone(), target_dir.clone()].iter().collect();
     
-    let mut backed_up_file_1 = destination.clone();
-    backed_up_file_1.push("payload.txt");
+    let backed_up_file_1: PathBuf = [
+        destination.clone(),
+        PathBuf::from("payload.txt")
+    ].iter().collect();
 
-    let mut backed_up_file_2 = destination.clone();
-    backed_up_file_2.push("payload_2.txt");
+    let backed_up_file_2: PathBuf = [
+        destination.clone(),
+        PathBuf::from("payload_2.txt")
+    ].iter().collect();
 
-    let mut backed_up_file_3: PathBuf = [
+    let backed_up_file_3: PathBuf = [
         destination.clone(), 
         PathBuf::from("nested_folder"), 
         PathBuf::from("nested_file.txt")
     ].iter().collect();
 
-    let mut backed_up_file_4: PathBuf = [
+    let backed_up_file_4: PathBuf = [
         destination.clone(), 
         PathBuf::from("nested_folder"), 
         PathBuf::from("double_nested_folder"),
         PathBuf::from("double_nested_file_1.txt"),
     ].iter().collect();
-
-    // let backed_up_file_3 = [destination.clone(), String::from("nested_folder"), String::from("nested_file.txt")].join("/");
 
     run_test(|| {
         let _copy_result = copy_directory_contents(&source, &destination);
