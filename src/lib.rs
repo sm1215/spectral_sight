@@ -11,8 +11,7 @@ pub fn copy_file(source: &PathBuf, destination: &PathBuf) -> io::Result<()> {
     println!("copying {:?} to {:?}", source, destination);
     println!("destination exists? {:#?}, path {:#?}", destination.exists(), destination);
     if !destination.exists() {
-        println!("creating destination...");
-        fs::create_dir_all(&destination)?;
+        create_nested_directory(&destination)?;
     }
     fs::copy(source, destination)?;
     Ok(())
