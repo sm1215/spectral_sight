@@ -21,33 +21,44 @@ pub fn set_write_perms(path: &str) {
         .expect("error setting permissions");
 }
 
-// pub fn copy_directory_contents(source: &str, destination: &str) -> io::Result<()> {
+pub fn copy_directory_contents(source: &PathBuf, destination: &PathBuf) -> io::Result<()> {
 
-//     // destination
-//     // ./tests/source_test/interface_backups/include
-//     for entry in fs::read_dir(source)? {
-//         let entry = entry?;
-//         let path = entry.path();
-//         let entry_meta = fs::metadata(&path);
+    // destination
+    // ./tests/source_test/interface_backups/include
+
+    if !destination.exists() {
+        fs::create_dir_all(&destination)?;
+    }
+    for entry in fs::read_dir(source)? {
+        let entry = entry?;
+        let path = entry.path();
+        // let entry_meta = fs::metadata(&path);
+
+        println!("reading entry at {:#?}", path);
         
-//         println!("entry {:#?}", entry);
-//         println!("path {:#?}", path);
-//         println!("meta {:#?}", entry_meta);
-        
-//         // let mut nested_dirs = vec![];
-//         if path.is_dir() {
-//             // copy_directory_contents
-//             // nested_dirs.push(&path)
-//         } else {
-//             // let path: PathBuf = [r"C:\", "windows", "system32.dll"].iter().collect();
+        // let mut nested_dirs = vec![];
+        if path.is_dir() {
+            // copy_directory_contents
+            // nested_dirs.push(&path)
+        } else {
+            let mut destination = destination.clone();
+            let filename = match path.file_name() {
+                Some(filename) => filename,
+                None => {
+                    println!("no filename");
+                    break;
+                }
+            };
+            println!("filename {:#?}", filename);
+            destination.push(&filename);
 
-//             copy_file(&path, &destination)?;
-//             fs::copy(&path, &destination)?;
-
-//         }
 
 
-//     }
+            copy_file(&path, &destination)?;
+        }
+
+
+    }
     
-//     Ok(())
-// }
+    Ok(())
+}

@@ -97,25 +97,30 @@ fn copies_a_file() {
     });
 }
 
-// #[test]
-// fn copies_nested_files() {
-//     let cfg = TestConfig::new();
-//     let base_path = cfg.base_path;
-//     let backup_location = cfg.backup_location;
-//     let target_dir = String::from("include");
+#[test]
+fn copies_nested_files() {
+    let cfg = TestConfig::new();
+    let base_path = cfg.base_path;
+    let backup_location = cfg.backup_location;
+    let target_dir = String::from("include");
 
-//     let source: PathBuf = [base_path.clone(), target_dir.clone()].iter().collect();//.join("/");
-//     let destination: PathBuf = [base_path.clone(), backup_location.clone(), target_dir.clone()].iter().collect();//.join("/");
-//     let backed_up_file_1 = destination.clone().push("payload"); //[destination.clone(), String::from("payload.txt")].join("/");
-//     let backed_up_file_2 = destination.clone().push("payload_2.txt");//[destination.clone(), String::from("payload_2.txt")].join("/");
-//     // let backed_up_file_3 = [destination.clone(), String::from("nested_folder"), String::from("nested_file.txt")].join("/");
+    let source: PathBuf = [base_path.clone(), target_dir.clone()].iter().collect();
+    let destination: PathBuf = [base_path.clone(), backup_location.clone(), target_dir.clone()].iter().collect();
+    
+    let mut backed_up_file_1 = destination.clone();
+    backed_up_file_1.push("payload.txt");
 
-//     // let path: PathBuf = [r"C:\", "windows", "system32.dll"].iter().collect();
+    println!("backed_up_file_1 {:#?}", backed_up_file_1);
+    
+    let mut backed_up_file_2 = destination.clone();
+    backed_up_file_2.push("payload_2.txt");
 
-//     run_test(|| {
-//         let _copy_result = copy_directory_contents(&source, &destination);
-//         // assert_eq!(Path::from(&backed_up_file_1).exists(), true);
-//         // assert_eq!(Path::new(&backed_up_file_2).exists(), true);
-//         // assert_eq!(Path::new(&backed_up_file_3).exists(), true);
-//     });
-// }
+    // let backed_up_file_3 = [destination.clone(), String::from("nested_folder"), String::from("nested_file.txt")].join("/");
+
+    run_test(|| {
+        let _copy_result = copy_directory_contents(&source, &destination);
+        assert_eq!(backed_up_file_1.exists(), true);
+        assert_eq!(backed_up_file_2.exists(), true);
+        // assert_eq!(backed_up_file_3.exists(), true);
+    });
+}
