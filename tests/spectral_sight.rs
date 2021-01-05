@@ -73,7 +73,7 @@ fn _destroys_backup_folder() {
 }
 
 #[test]
-fn copies_a_folder() {
+fn copies_a_file() {
     let cfg = TestConfig::new();
     let base_path = cfg.base_path;
     let backup_location = cfg.backup_location;
@@ -87,5 +87,5 @@ fn copies_a_folder() {
         let _copy_result = copy_folder(&source, &destination);
         let backed_up_file = destination.clone();
         assert_eq!(Path::new(&backed_up_file).exists(), true);
-    })
+    });
 }
